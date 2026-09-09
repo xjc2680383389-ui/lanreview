@@ -1,0 +1,5 @@
+node_modules/
+dist/
+.lanreview-receiver/
+.lanreview/
+*.log

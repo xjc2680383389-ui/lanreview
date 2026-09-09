@@ -1,0 +1,148 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>把接收端装到这台电脑上 · LAN Review</title>
+    <link rel="stylesheet" href="/shared/base.css" />
+    <link rel="stylesheet" href="/receiver/receiver.css" />
+    <!--BOOTSTRAP-->
+  </head>
+  <body class="receiver-body">
+    <header class="app-header">
+      <div class="brand">
+        <span class="logo">LR</span>
+        <div>
+          <div>局域网提审与交付 · 接收端</div>
+          <div class="header-meta" id="hostline">正在读取创作者电脑信息…</div>
+        </div>
+      </div>
+      <div class="header-spacer"></div>
+      <a class="btn btn-sm btn-ghost" href="/">返回创作者页面</a>
+    </header>
+
+    <main class="receiver-page stack">
+      <section class="hero">
+        <div class="hero-badge"><span class="dot dot-online"></span>这台电脑将用来接收交付的成片</div>
+        <h1>只要三步：下载安装包 → 解压双击 → 输入配对码</h1>
+        <p>接收端不需要联网，也不需要账号。它只在你自己的局域网里工作，负责把创作者审核通过的那一版文件，完整地保存到这台电脑上。</p>
+      </section>
+
+      <section class="download-block">
+        <div class="grow">
+          <div class="strong">接收端安装包</div>
+          <div class="text-sm muted" id="kit-meta">正在检查安装包…</div>
+        </div>
+        <a class="btn btn-primary btn-lg" id="download" href="/download/receiver-kit.zip" download>下载安装包</a>
+      </section>
+
+      <section class="stack">
+        <div class="section-title">安装步骤</div>
+        <div class="landing-steps">
+          <div class="landing-step">
+            <span class="landing-step-n"></span>
+            <div>
+              <div class="strong">双击下载的文件解压</div>
+              <div class="text-sm muted">解压后会看到一个 <code>lanreview</code> 文件夹，里面有启动按钮。不用把它放到特定位置。</div>
+            </div>
+          </div>
+          <div class="landing-step">
+            <span class="landing-step-n"></span>
+            <div>
+              <div class="strong">双击启动接收端</div>
+              <div class="text-sm muted">
+                macOS 双击 <code>启动接收端.command</code>（第一次如果提示“无法打开”，请在文件上<b>右键 → 打开</b>）；Windows 双击 <code>启动接收端.bat</code>。浏览器会自动打开接收端页面。
+              </div>
+              <div class="text-sm muted" style="margin-top:6px">如果提示需要 Node.js：打开 <a href="https://nodejs.org/zh-cn/" target="_blank" rel="noreferrer">nodejs.org/zh-cn</a>，下载左边那个 LTS 版本，一路“下一步”安装完，再重新双击启动按钮。</div>
+            </div>
+          </div>
+          <div class="landing-step">
+            <span class="landing-step-n"></span>
+            <div>
+              <div class="strong">把下面两样东西填进接收端页面</div>
+              <div class="text-sm muted">① 创作者电脑地址（点下面的按钮复制）；② 创作者页面上刚生成的 6 位配对码。填好后回到创作者电脑，在「设备连接」里点<b>允许</b>。</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="card stack">
+        <div class="card-head"><span class="card-title">创作者电脑地址</span></div>
+        <p class="text-sm muted">请确认这台电脑和创作者电脑连着同一个 Wi-Fi 或同一根网线。</p>
+        <div id="addresses" class="stack gap-sm"></div>
+        <div class="text-xs muted">手机只需要用浏览器打开上面的地址扫码即可，不用安装任何东西。</div>
+      </section>
+
+      <section class="card">
+        <div class="card-head"><span class="card-title">接收端会做什么</span></div>
+        <ul class="text-sm muted" style="margin:0;padding-left:20px;line-height:1.9">
+          <li>只有被创作者标记为<b>审核通过</b>的那个版本才会传过来，改动中的工作文件不会被误交付。</li>
+          <li>每个文件传完都会做一次完整性校验，校验不通过会明确告诉你失败原因，不会假装成功。</li>
+          <li>中途断网或关机后，重新打开接收端会自动从断点继续。</li>
+          <li>文件保存在你自己选的那个文件夹里，接收端不会删除或覆盖同名旧文件以外的内容。</li>
+        </ul>
+      </section>
+    </main>
+
+    <script type="module">
+      import { copyText, fmtBytes, h, mount, qs, setFavicon, toast } from '/shared/ui.js';
+
+      const BOOT = window.__LR_BOOTSTRAP__ || {};
+      setFavicon();
+      qs('#hostline').textContent = `${BOOT.hostName || '创作者电脑'} · ${BOOT.baseUrl || ''}`;
+
+      const ips = Array.isArray(BOOT.lanIps) ? BOOT.lanIps : [];
+      const candidates = [];
+      if (BOOT.baseUrl) candidates.push(BOOT.baseUrl);
+      for (const ip of ips) {
+        const url = `http://${ip.address}:${BOOT.port}`;
+        if (!candidates.includes(url)) candidates.push(url);
+      }
+      const box = qs('#addresses');
+      for (const url of candidates) {
+        box.appendChild(
+          h(
+            'div',
+            { class: 'row wrap' },
+            h('code', { class: 'path-chip', style: { maxWidth: '100%' } }, url),
+            h(
+              'button',
+              {
+                class: 'btn btn-sm',
+                onClick: async () => {
+                  const ok = await copyText(url);
+                  toast(ok ? '地址已复制，粘贴到接收端页面即可' : '复制失败，请手动输入这个地址', ok ? 'success' : 'error');
+                },
+              },
+              '复制这个地址',
+            ),
+            url === BOOT.baseUrl ? h('span', { class: 'pill pill-brand' }, '推荐') : null,
+          ),
+        );
+      }
+      if (!candidates.length) {
+        mount(box, h('div', { class: 'text-sm muted' }, '没有检测到局域网地址，请确认创作者电脑已连上网络后刷新本页面。'));
+      }
+
+      const meta = qs('#kit-meta');
+      const download = qs('#download');
+      async function checkKit(attempt = 0) {
+        try {
+          const res = await fetch('/api/receiver-kit');
+          const info = await res.json();
+          if (info.available) {
+            meta.textContent = `lanreview-receiver-kit.zip · ${info.sizeLabel || '已就绪'} · 已包含接收端全部程序`;
+            download.style.pointerEvents = 'auto';
+            return;
+          }
+          throw new Error('not ready');
+        } catch {
+          meta.textContent = '安装包正在准备中，通常几秒钟就好，页面会自动重试…';
+          download.style.pointerEvents = 'none';
+          if (attempt < 20) setTimeout(() => checkKit(attempt + 1), 3000);
+        }
+      }
+      checkKit();
+    </script>
+  </body>
+</html>

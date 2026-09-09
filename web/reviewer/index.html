@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="theme-color" content="#1f5eff" />
+    <meta name="format-detection" content="telephone=no" />
+    <meta name="apple-mobile-web-app-title" content="审核" />
+    <title>审核页 · 局域网提审</title>
+    <link rel="stylesheet" href="/shared/base.css" />
+    <link rel="stylesheet" href="/reviewer/reviewer.css" />
+    <!--BOOTSTRAP-->
+  </head>
+  <body>
+    <div id="app">
+      <div class="page">
+        <div class="loading-block">
+          <span class="spinner"></span>
+          <span class="text-sm muted">正在打开审核页…</span>
+        </div>
+      </div>
+    </div>
+    <noscript>
+      <div class="page">
+        <div class="banner banner-error">
+          <div class="banner-body">
+            <div class="strong">这个页面需要浏览器支持 JavaScript</div>
+            <div class="text-sm">请在手机浏览器设置里允许 JavaScript，然后重新扫描二维码。</div>
+          </div>
+        </div>
+      </div>
+    </noscript>
+    <script type="module" src="/reviewer/app.js"></script>
+  </body>
+</html>

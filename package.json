@@ -1,0 +1,23 @@
+{
+  "name": "lanreview",
+  "version": "1.0.0",
+  "description": "局域网提审、审核与交付工具（创作者主机 + 浏览器审核端 + 笔记本接收端）",
+  "type": "module",
+  "main": "server/index.js",
+  "engines": {
+    "node": ">=22.5.0"
+  },
+  "scripts": {
+    "start": "node server/index.js",
+    "agent": "node agent/index.js",
+    "pack:agent": "node packaging/build-receiver-kit.js",
+    "test": "node test/run-all.mjs",
+    "test:unit": "node test/unit.mjs",
+    "test:e2e": "node test/e2e.mjs"
+  },
+  "license": "MIT",
+  "devDependencies": {
+    "jsqr": "^1.4.0",
+    "pngjs": "^7.0.0"
+  }
+}
